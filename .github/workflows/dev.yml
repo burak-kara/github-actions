@@ -1,0 +1,71 @@
+name: "Feature Branch Unit Test & Build & Create PR"
+
+on:
+  push:
+    branches:
+      - feature/*
+
+jobs:
+  test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+
+      - name: Test
+        uses: ./.github/actions/test
+        with:
+          branch-name: "${{ steps.branch-name.outputs.current_branch }}"
+          slack-web-hook: ${{ secrets.SLACK_WEBHOOK }}
+          slack-channel-name: ${{ secrets.CHANNEL_NAME }}
+
+  build:
+    name: Build
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          branch-name: "${{ steps.branch-name.outputs.current_branch }}"
+          slack-web-hook: ${{ secrets.SLACK_WEBHOOK }}
+          slack-channel-name: ${{ secrets.CHANNEL_NAME }}
+
+  create-pr:
+    name: Create PR
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Create PR
+        uses: ./.github/actions/create-pr
+        with:
+          pat: ${{ secrets.PAT }}
+          slack-web-hook: ${{ secrets.SLACK_WEBHOOK }}
+          slack-channel-name: ${{ secrets.CHANNEL_NAME }}

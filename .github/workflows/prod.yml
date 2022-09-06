@@ -1,0 +1,54 @@
+name: Merge to master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+
+      - name: Test
+        uses: ./.github/actions/test
+        with:
+          branch-name: "${{ steps.branch-name.outputs.current_branch }}"
+          slack-web-hook: ${{ secrets.SLACK_WEBHOOK }}
+          slack-channel-name: ${{ secrets.CHANNEL_NAME }}
+
+  build:
+    name: Build
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          branch-name: "${{ steps.branch-name.outputs.current_branch }}"
+          slack-web-hook: ${{ secrets.SLACK_WEBHOOK }}
+          slack-channel-name: ${{ secrets.CHANNEL_NAME }}

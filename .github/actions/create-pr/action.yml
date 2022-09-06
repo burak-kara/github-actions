@@ -1,0 +1,55 @@
+name: 'Create Pull Request'
+description: 'Create a pull request from a feature branch to master'
+inputs:
+  pat:
+    description: 'GitHub PAT'
+    required: true
+    default: "null"
+  slack-web-hook:
+    description: 'Slack WebHook URL'
+    required: true
+    default: "null"
+  slack-channel-name:
+    description: 'Slack channel name'
+    required: true
+    default: "null"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v6
+
+    - name: Create Pull Request
+      uses: devops-infra/action-pull-request@v0.5.0
+      with:
+        github_token: ${{ inputs.pat }}
+        source_branch: "${{ steps.branch-name.outputs.current_branch }}"
+        target_branch: master
+        title: "Merge ${{ steps.branch-name.outputs.current_branch }} to master"
+        body: "**Automated pull request**"
+        assignee: ${{ github.actor }}
+        draft: false
+        allow_no_diff: false
+        get_diff: true
+
+    - name: Notify Slack on Success
+      if: ${{ success() }}
+      uses: ./.github/actions/slack-notifier
+      with:
+        action-status: ${{ job.status }}
+        slack-web-hook: ${{ inputs.slack-web-hook }}
+        slack-channel-name: ${{ inputs.slack-channel-name }}
+        title: "Create PR Success :pass:"
+        message: "Create PR on ${{ inputs.branch-name }} succeeded :pass: :fireparrot: :sheepy:"
+
+    - name: Notify Slack on Failure
+      if: ${{ failure() }}
+      uses: ./.github/actions/slack-notifier
+      with:
+        action-status: ${{ job.status }}
+        slack-web-hook: ${{ inputs.slack-web-hook }}
+        slack-channel-name: ${{ inputs.slack-channel-name }}
+        title: "Create PR Failed :fail:"
+        message: "Create PR on ${{ inputs.branch-name }} failed :fail: :terror: :alert:"

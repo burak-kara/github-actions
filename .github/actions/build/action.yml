@@ -1,0 +1,56 @@
+name: 'Build'
+description: 'Download the install artifacts and build the project'
+branding:
+  icon: 'settings'
+  color: 'green'
+
+inputs:
+  branch-name:
+    description: 'Branch name'
+    required: true
+    default: 'feature'
+  slack-web-hook:
+    description: 'Slack WebHook URL'
+    required: true
+    default: "null"
+  slack-channel-name:
+    description: 'Slack channel name'
+    required: true
+    default: "null"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Use Node.js ${{ matrix.node-version }}"
+      uses: actions/setup-node@v3
+      with:
+        node-version: "${{ matrix.node-version }}"
+        cache: 'yarn'
+
+    - name: Install dependencies
+      shell: bash
+      run: yarn install
+
+    - name: yarn build
+      shell: bash
+      run: yarn build
+
+    - name: Notify Slack on Success
+      if: ${{ success() }}
+      uses: ./.github/actions/slack-notifier
+      with:
+        action-status: ${{ job.status }}
+        slack-web-hook: ${{ inputs.slack-web-hook }}
+        slack-channel-name: ${{ inputs.slack-channel-name }}
+        title: "Build Success :pass:"
+        message: "Build on ${{ inputs.branch-name }} succeeded :pass: :fireparrot: :sheepy:"
+
+    - name: Notify Slack on Failure
+      if: ${{ failure() }}
+      uses: ./.github/actions/slack-notifier
+      with:
+        action-status: ${{ job.status }}
+        slack-web-hook: ${{ inputs.slack-web-hook }}
+        slack-channel-name: ${{ inputs.slack-channel-name }}
+        title: "Build Failed :fail:"
+        message: "Build on ${{ inputs.branch-name }} failed :fail: :terror: :alert:"
