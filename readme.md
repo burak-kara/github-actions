@@ -1,7 +1,7 @@
 # Actions and Workflows
 
-This repository contains a collection of actions and workflows that can be used in your GitHub Actions workflows.
-It tests, builds and create pull request the project while notifying your Slack channel after each action (e.g., test, build, create PR) with its status (e.g., success, fail).
+This repository contains a collection of actions and workflows that can be used in your GitHub Actions and Workflows.
+It tests, builds and creates a pull request while notifying your Slack channel after each action (e.g., test, build, create PR) with its status (e.g., success, fail).
 
 
 It also contains set of actions from the [GitHub Actions Marketplace](https://github.com/marketplace?type=actions). 
@@ -32,13 +32,24 @@ They are:
 To use this workflow, you can copy the entire [.github](.github) folder and paste it into your root directory.
 Then, you can modify the workflows to suit your needs.
 
-You also need to create a [GitHub Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) named;
+You need to create a [GitHub Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) named;
 - `CHANNEL_NAME` and set its value to your Slack channel name. (e.g., general, random)
 - `PAT` and set its value to your GitHub Personal Access Token. Needs to have repo scope access. Refer [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
 - `SLACK_WEBHOOK` and set its value to your Slack webhook URL. Get one [here](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks).
+
+You can provide your Slack Message icon by modifying the `SLACK_ICON` in the [slack-notifier](.github/actions/slack-notifier/action.yml) file.
+Please refer the action links above for more information and customization. 
+
 
 To use custom emojis in your Slack notification, you can use [this](https://slackmojis.com/) list. 
 Download emojis you want to use and upload them to your Slack workspace. 
 Then, you can use them in your Slack notification text.
 
-_PS: It is a work in progress, and I am adding more actions and workflows as I go._
+#### Screenshots
+On test success after merge to `master` branch
+
+![Slack notification on success](images/success.png)
+
+On test fail on `feature/instagram` branch
+
+![Slack notification on fail](images/fail.png)
