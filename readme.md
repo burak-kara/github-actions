@@ -1,6 +1,6 @@
 # Actions and Workflows
 
-This repository contains a collection of actions and workflows that can be used in your GitHub Actions workflows.
+This repository contains a collection of actions and workflows that can be used in your GitHub Actions and Workflows.
 It tests, builds and create pull request the project while notifying your Slack channel after each action (e.g., test, build, create PR) with its status (e.g., success, fail).
 
 
@@ -44,8 +44,6 @@ Please refer the action links above for more information and customization.
 To use custom emojis in your Slack notification, you can use [this](https://slackmojis.com/) list. 
 Download emojis you want to use and upload them to your Slack workspace. 
 Then, you can use them in your Slack notification text.
-
-_PS: It is a work in progress, and I am adding more actions and workflows as I go._
 
 #### Screenshots
 On test success after merge to `master` branch
