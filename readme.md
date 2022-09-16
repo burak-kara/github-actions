@@ -1,7 +1,7 @@
 # Actions and Workflows
 
 This repository contains a collection of actions and workflows that can be used in your GitHub Actions and Workflows.
-It tests, builds and create pull request the project while notifying your Slack channel after each action (e.g., test, build, create PR) with its status (e.g., success, fail).
+It tests, builds and creates a pull request while notifying your Slack channel after each action (e.g., test, build, create PR) with its status (e.g., success, fail).
 
 
 It also contains set of actions from the [GitHub Actions Marketplace](https://github.com/marketplace?type=actions). 
@@ -47,7 +47,9 @@ Then, you can use them in your Slack notification text.
 
 #### Screenshots
 On test success after merge to `master` branch
+
 ![Slack notification on success](images/success.png)
 
 On test fail on `feature/instagram` branch
+
 ![Slack notification on fail](images/fail.png)
