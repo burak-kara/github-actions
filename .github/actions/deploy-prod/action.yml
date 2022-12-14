@@ -1,0 +1,73 @@
+name: 'Deploy to Production'
+description: 'Deploy to Firebase Hosting on merge'
+branding:
+  icon: 'settings'
+  color: 'green'
+
+inputs:
+  pat:
+    description: 'GitHub PAT'
+    required: true
+    default: "null"
+  firebase-service-account:
+    description: 'Firebase Service Account'
+    required: true
+    default: "null"
+  branch-name:
+    description: 'Branch name'
+    required: true
+    default: 'feature'
+  slack-web-hook:
+    description: 'Slack WebHook URL'
+    required: true
+    default: "null"
+  slack-channel-name:
+    description: 'Slack channel name'
+    required: true
+    default: "null"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Use Node.js ${{ matrix.node-version }}"
+      uses: actions/setup-node@v3
+      with:
+        node-version: "${{ matrix.node-version }}"
+        cache: 'yarn'
+
+    - name: Install dependencies
+      shell: bash
+      run: yarn install
+
+    - name: Build
+      shell: bash
+      run: yarn run build
+
+    - name: Deploy
+      uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: ${{ inputs.pat }}
+        firebaseServiceAccount: ${{ inputs.firebase-service-account }}
+        projectId: projectId
+        channelId: live
+      id: deploy
+
+    - name: Notify Slack on Success
+      if: ${{ success() }}
+      uses: ./.github/actions/slack-notifier
+      with:
+        action-status: ${{ job.status }}
+        slack-web-hook: ${{ inputs.slack-web-hook }}
+        slack-channel-name: ${{ inputs.slack-channel-name }}
+        title: "Deploy to Production Success :pass:"
+        message: "Deploy to Production on ${{ inputs.branch-name }} succeeded.\nURL: ${{ steps.deploy.outputs.details_url }}\nExpire Time: ${{ steps.deploy.outputs.expire_time }}\nURLS: ${{ steps.deploy.outputs.urls }}\n :pass: :fireparrot: :sheepy:"
+
+    - name: Notify Slack on Failure
+      if: ${{ failure() }}
+      uses: ./.github/actions/slack-notifier
+      with:
+        action-status: ${{ job.status }}
+        slack-web-hook: ${{ inputs.slack-web-hook }}
+        slack-channel-name: ${{ inputs.slack-channel-name }}
+        title: "Deploy to Production Failed :fail:"
+        message: "Deploy to Production on ${{ inputs.branch-name }} failed :fail: :terror: :alert:"
