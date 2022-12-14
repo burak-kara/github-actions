@@ -1,4 +1,4 @@
-name: "Feature Branch Unit Test & Build & Create PR"
+name: "Feature Branch Unit Test & Build & Create PR && Deploy to Preprod"
 
 on:
   push:
@@ -29,13 +29,10 @@ jobs:
           slack-web-hook: ${{ secrets.SLACK_WEBHOOK }}
           slack-channel-name: ${{ secrets.CHANNEL_NAME }}
 
-  build:
-    name: Build
+  create-pr:
+    name: Create PR
     needs: test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [ 16.x ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -46,16 +43,17 @@ jobs:
         id: branch-name
         uses: tj-actions/branch-names@v6
 
-      - name: Build
-        uses: ./.github/actions/build
+      - name: Create PR
+        uses: ./.github/actions/create-pr
         with:
+          pat: ${{ secrets.PAT }}
           branch-name: "${{ steps.branch-name.outputs.current_branch }}"
           slack-web-hook: ${{ secrets.SLACK_WEBHOOK }}
           slack-channel-name: ${{ secrets.CHANNEL_NAME }}
 
-  create-pr:
-    name: Create PR
-    needs: build
+  deploy-preprod:
+    name: Deploy to Preprod
+    needs: create-pr
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -63,9 +61,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create PR
-        uses: ./.github/actions/create-pr
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+
+      - name: Deploy to Pre-Production
+        uses: ./.github/actions/deploy-preprod
         with:
           pat: ${{ secrets.PAT }}
+          firebase-service-account: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          branch-name: "${{ steps.branch-name.outputs.current_branch }}"
           slack-web-hook: ${{ secrets.SLACK_WEBHOOK }}
           slack-channel-name: ${{ secrets.CHANNEL_NAME }}

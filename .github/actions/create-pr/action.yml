@@ -1,10 +1,18 @@
 name: 'Create Pull Request'
 description: 'Create a pull request from a feature branch to master'
+branding:
+  icon: 'git-pull-request'
+  color: 'green'
+
 inputs:
   pat:
     description: 'GitHub PAT'
     required: true
     default: "null"
+  branch-name:
+    description: 'Branch name'
+    required: true
+    default: 'feature'
   slack-web-hook:
     description: 'Slack WebHook URL'
     required: true

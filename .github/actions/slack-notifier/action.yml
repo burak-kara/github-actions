@@ -1,5 +1,9 @@
 name: 'Slack Notifications on GitHub Actions'
 description: 'Notify Slack channel on GitHub Actions'
+branding:
+  icon: 'bell'
+  color: 'green'
+
 inputs:
   action-status:
     description: 'Status of the action. Can be Success, Failure'
